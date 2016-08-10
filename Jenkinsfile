@@ -1,11 +1,14 @@
 node {
 
   stage 'Prepare'
-  npm install & bower install
-  
+  withEnv(["node=${nodeHome}"]) {
+       sh "npm install --verbose"
+       sh "bower install"
+     }
+
   stage 'Build'
 
-  grunt build -f
+  sh "grunt build -f"
 
   stage 'Test'
 
