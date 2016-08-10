@@ -1,13 +1,11 @@
 node {
-stage 'check environment'
-  sh "node -v"
-  sh "npm -v"
-  sh "bower -v"
-  sh "grunt -v"
+  def nodeHome = tool name: 'node-0.12.2'
 
   stage 'Prepare'
-  sh "npm install --verbose"
-  sh "bower install"
+  withEnv("node=$nodeHome") {
+    sh "npm install --verbose"
+    sh "bower install"
+  }
 
   stage 'Build'
 
