@@ -1,5 +1,6 @@
 node {
-
+  def nodeHome = tool 'Node'
+  
   stage 'Prepare'
   withEnv(["node=${nodeHome}"]) {
        sh "npm install --verbose"
