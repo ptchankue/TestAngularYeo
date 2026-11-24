@@ -1,0 +1,106 @@
+<section class="m-hero">
+  <span class="m-pill">Angular 21 · zoneless · signals</span>
+  <h1>'Allo, 'Allo, <span class="m-gradient">rebuilt.</span></h1>
+  <p class="m-lead">
+    The same little Yeoman app from 2016, rewritten with modern Angular. Each card below is a live demo of the feature
+    it describes.
+  </p>
+  <div class="m-actions">
+    <a class="m-btn m-btn--primary" href="#features">Explore features</a>
+    <a class="m-btn" routerLink="/about">Try Signal Forms →</a>
+  </div>
+</section>
+
+<!-- signals + computed + linkedSignal + @let -->
+<section id="features" class="m-section">
+  <header class="m-section__head">
+    <h2>What's new since 2016</h2>
+    <code class="m-code">signal · computed · linkedSignal · &#64;for · &#64;let</code>
+  </header>
+
+  <input
+    class="m-input"
+    type="search"
+    placeholder="Filter features… (try “signal” or “performance”)"
+    aria-label="Filter features"
+    [value]="query()"
+    (input)="query.set($any($event.target).value)"
+  />
+
+  @let matches = filtered().length;
+  <p class="m-muted">{{ matches }} of {{ features.length }} features</p>
+
+  <div class="m-grid" role="list">
+    @for (feature of filtered(); track feature.id) {
+      <app-feature-card [feature]="feature" [selected]="selected()?.id === feature.id" (pick)="selected.set($event)" />
+    } @empty {
+      <p class="m-muted">No feature matches “{{ query() }}”.</p>
+    }
+  </div>
+
+  @if (selected(); as feature) {
+    <article class="m-card m-detail" aria-live="polite">
+      <span class="m-tag">{{ feature.tag }} · since v{{ feature.since }}</span>
+      <h3>{{ feature.name }}</h3>
+      <p>{{ feature.summary }}</p>
+    </article>
+  }
+</section>
+
+<div class="m-columns">
+  <!-- model() -->
+  <section class="m-card m-section">
+    <header class="m-section__head">
+      <h2>Two-way binding</h2>
+      <code class="m-code">model()</code>
+    </header>
+    <app-counter [(value)]="count" />
+    @let parity = count() % 2 === 0 ? 'even' : 'odd';
+    <p class="m-muted">
+      Parent sees <strong>{{ count() }}</strong> ({{ parity }}), doubled by <code>computed()</code>:
+      <strong>{{ doubled() }}</strong>
+    </p>
+  </section>
+
+  <!-- resource() -->
+  <section class="m-card m-section">
+    <header class="m-section__head">
+      <h2>Async data</h2>
+      <code class="m-code">resource()</code>
+    </header>
+    <div class="m-chips" role="group" aria-label="Angular version">
+      @for (v of versions; track v) {
+        <button type="button" class="m-chip" [class.is-on]="v === version()" (click)="version.set(v)">v{{ v }}</button>
+      }
+    </div>
+
+    @if (release.isLoading()) {
+      <p class="m-muted m-loading">Loading v{{ version() }}…</p>
+    } @else if (release.error()) {
+      <p class="m-error">Could not load release. <button type="button" class="m-link" (click)="release.reload()">Retry</button></p>
+    } @else if (release.value(); as r) {
+      <p class="m-muted">Angular {{ r.version }} · {{ r.date }}</p>
+      <ul class="m-list">
+        @for (h of r.highlights; track h) {
+          <li>{{ h }}</li>
+        }
+      </ul>
+    }
+    <p class="m-hint">Simulated 600 ms network delay. Switching versions quickly cancels the pending request.</p>
+  </section>
+</div>
+
+<!-- @defer -->
+<section class="m-card m-section">
+  <header class="m-section__head">
+    <h2>Lazy template blocks</h2>
+    <code class="m-code">&#64;defer (on viewport)</code>
+  </header>
+  @defer (on viewport) {
+    <app-deferred-panel />
+  } @placeholder (minimum 400ms) {
+    <p class="m-muted">This panel's code downloads when you scroll it into view…</p>
+  } @loading (minimum 400ms) {
+    <p class="m-muted m-loading">Fetching chunk…</p>
+  }
+</section>

@@ -1,0 +1,68 @@
+<form class="m-card m-section" novalidate (submit)="add($event)">
+  <header class="m-section__head">
+    <h2>Notes</h2>
+    <code class="m-code">form() · [formField] · submit()</code>
+  </header>
+
+  @let content = noteForm.content();
+  <label class="m-label" for="m-note-content">Note content</label>
+  <textarea
+    id="m-note-content"
+    class="m-input"
+    rows="4"
+    placeholder="What's on your mind?"
+    [formField]="noteForm.content"
+    [class.is-invalid]="content.touched() && content.invalid()"
+    [attr.aria-describedby]="'m-note-help'"
+  ></textarea>
+
+  <div id="m-note-help" class="m-field-foot">
+    <span class="m-error" aria-live="polite">
+      @if (content.touched()) {
+        @for (error of content.errors(); track error.kind) {
+          {{ error.message }}
+        }
+      }
+    </span>
+    <span class="m-muted" [class.m-error]="remaining() < 0">{{ remaining() }}</span>
+  </div>
+
+  <div class="m-row">
+    <label class="m-label" for="m-note-priority">Priority</label>
+    <select id="m-note-priority" class="m-input m-input--inline" [formField]="noteForm.priority">
+      @for (p of priorities; track p) {
+        <option [value]="p">{{ p }}</option>
+      }
+    </select>
+
+    <span class="m-spacer"></span>
+    <button type="button" class="m-btn" (click)="clear()">Clear</button>
+    <button type="submit" class="m-btn m-btn--primary">Add note</button>
+  </div>
+</form>
+
+<section class="m-section">
+  <header class="m-section__head">
+    <h2>{{ notes().length }} {{ notes().length === 1 ? 'note' : 'notes' }}</h2>
+    @if (highCount()) {
+      <span class="m-tag m-tag--high">{{ highCount() }} high priority</span>
+    }
+  </header>
+
+  <ul class="m-notes">
+    @for (note of notes(); track note.id) {
+      <li class="m-card m-note" [attr.data-priority]="note.priority">
+        <p>{{ note.content }}</p>
+        <footer>
+          <span class="m-tag">{{ note.priority }}</span>
+          <time class="m-muted">{{ note.createdAt | date: 'shortTime' }}</time>
+          <button type="button" class="m-link" (click)="remove(note.id)" [attr.aria-label]="'Delete note: ' + note.content">
+            Delete
+          </button>
+        </footer>
+      </li>
+    } @empty {
+      <li class="m-muted">No notes yet. Add one above.</li>
+    }
+  </ul>
+</section>
